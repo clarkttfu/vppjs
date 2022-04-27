@@ -1,0 +1,6 @@
+export const kRpcSubPaths = Symbol('rpc subpaths')
+export const kRpcGetHandlers = Symbol('rpc-get handlers')
+export const kRpcSetHandlers = Symbol('rpc-set handlers')
+export const kDgramHandlers = Symbol('dgram handlers')
+export const kRpcGet = Symbol('rpg-get')
+export const kRpcSet = Symbol('rpg-set')

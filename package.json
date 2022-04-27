@@ -1,0 +1,33 @@
+{
+  "name": "vppjs",
+  "version": "0.1.0",
+  "description": "VSOA app framework like Express.js",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --build --clean && tsc",
+    "lint": "eslint src/**/*.ts",
+    "test": "tape test/**/*.js | tap-spec"
+  },
+  "keywords": [
+    "vsoa"
+  ],
+  "author": "clarkttfu@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "vsoa": "^0.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.29",
+    "@types/tape": "^4.13.2",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
+    "eslint": "^8.14.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "tap-spec": "^5.0.0",
+    "tape": "^5.5.3",
+    "typescript": "^4.6.3"
+  }
+}
