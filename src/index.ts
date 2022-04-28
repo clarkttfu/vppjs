@@ -1,12 +1,9 @@
-import path from 'path'
 import assert from 'assert'
-import { EventEmitter } from 'events'
 import { isIPv4 } from 'net'
 import { Server, AF_INET, AF_INET6, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
-import { kRpcGetHandlers, kRpcSetHandlers, kDgramHandlers, kRpcSubPaths } from './symbols'
+import { VppCallback, VppDgramHandler, VppDgramRequest, VppDgramResponse, VppError, VppRpcHandler, VppRpcRequest, VppRpcResponse } from './types'
 import { RpcForward, DgramForward } from './adapters'
 import { VppRouter } from './router'
-import { VppCallback, VppHandler } from './vpp-types'
 
 export default vppjs
 export function Router (this: any) {
@@ -22,14 +19,13 @@ export interface VppOptions {
   captureRejections?: boolean
 }
 
-export class Vpp extends EventEmitter {
+export class Vpp extends VppRouter {
   private server: Server
   private serverTlsOpt: undefined | object
-  private routes = new Map<string, VppRouter>()
 
   constructor (options: VppOptions) {
     const opt: VppOptions = Object.assign({ info: 'Edge Container Stack Daemon' }, options)
-    super({ captureRejections: opt.captureRejections })
+    super(opt.captureRejections)
     this.server = new Server({ info: opt.info!, passwd: opt.passwd })
     this.serverTlsOpt = opt.tlsOpt
   }
@@ -66,15 +62,7 @@ export class Vpp extends EventEmitter {
 
     const self = this
     const server = self.server
-    const routes = self.routes
 
-    server.ondata = function (cli: RemoteClient, url: string, payload: VsoaPayload) {
-      for (const [basePath, router] of routes) {
-        if (url.startsWith(basePath)) {
-          DgramForward(router[kDgramHandlers], basePath, server, cli, url, payload)
-        }
-      }
-    }
     server.onclient = function (cli: RemoteClient, connect: boolean) {
       if (connect) {
         self.emit('connect', cli, server)
@@ -82,6 +70,8 @@ export class Vpp extends EventEmitter {
         self.emit('disconnect', cli, server)
       }
     }
+
+    initializeRoutes(server, this.dgramHandlers, this.rpcHandlers)
     server.start(saddr, self.serverTlsOpt, callback)
 
     return self
@@ -92,44 +82,38 @@ export class Vpp extends EventEmitter {
     return this
   }
 
-  /**
-   * Mount module handler to vsoa url
-   * @param {string} basePath module mount point
-   * @param {VppRouter} moduleRouter
-   */
-  use (basePath: string | VppRouter, moduleRouter?: VppRouter) {
-    if (basePath instanceof VppRouter) {
-      moduleRouter = basePath
-      basePath = '/'
-    } else {
-      assert(basePath && typeof basePath === 'string', 'url must be a string')
-      assert(moduleRouter instanceof VppRouter)
-    }
-
-    const server = this.server
-    this.routes.set(basePath, moduleRouter)
-
-    moduleRouter.on('publish', function (subPath: string, payload: any) {
-      const fullpath = path.join(basePath as string, subPath)
-      server.publish(fullpath, payload)
-    })
-
-    for (const subPath of moduleRouter[kRpcSubPaths]) {
-      const fullpath = path.join(basePath, subPath)
-      server.on(fullpath, function (cli: RemoteClient, req: VsoaRpc, payload: VsoaPayload) {
-        let rpcHandlers: IterableIterator<VppHandler[]>
-        switch (req.method) {
-          case 1:
-            rpcHandlers = moduleRouter![kRpcSetHandlers]; break
-          default: // 0: GET
-            rpcHandlers = moduleRouter![kRpcGetHandlers]
-        }
-        RpcForward(rpcHandlers, server, cli, req, payload)
-      })
-    }
+  publish (payload: VsoaPayload, urlpath = '/') {
+    this.server.publish(urlpath, payload)
   }
 }
 
 function vppjs (vppOpt: VppOptions) {
   return new Vpp(vppOpt)
+}
+
+function initializeRoutes (
+  server: Server,
+  dgramRoutes: Map<string, VppDgramHandler[]>,
+  rpcRoutes: Map<string, VppRpcHandler[]>,
+  defaultErrorCode = 128) {
+  server.ondata = function (cli: RemoteClient, urlpath: string, payload: VsoaPayload) {
+    if (dgramRoutes.has(urlpath)) {
+      const promise = DgramForward(dgramRoutes.get(urlpath)!, server, cli, urlpath, payload)
+      promise.catch((err: VppError<VppDgramRequest, VppDgramResponse>) => {
+        // default error handler
+        console.log(`Dgram handler error ${urlpath}`, err.cause)
+      })
+    }
+  }
+
+  for (const [subPath, rpcHandlers] of rpcRoutes) {
+    server.on(subPath, function (cli: RemoteClient, req: VsoaRpc, payload: VsoaPayload) {
+      const promise = RpcForward(rpcHandlers, server, cli, req, payload)
+      promise.catch((err: VppError<VppRpcRequest, VppRpcResponse>) => {
+        // default error handler
+        console.log(`Dgram handler error ${req.url}`, err.cause)
+        err.res.reply(undefined, defaultErrorCode)
+      })
+    })
+  }
 }

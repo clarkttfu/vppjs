@@ -1,8 +1,9 @@
+import path from 'path'
 import assert from 'assert'
 import { EventEmitter } from 'events'
-import { VsoaPayload } from 'vsoa'
-import { kRpcSubPaths, kRpcGetHandlers, kRpcSetHandlers, kDgramHandlers } from './symbols'
-import { VppHandler } from './vpp-types'
+import { VsoaPayload, VsoaRpcMethod } from 'vsoa'
+import { kDgramHandlers, kRpcHandlers, kBasePubCallbacks, kRpcMethod } from './symbols'
+import { VppPublish, VppDgramHandler, VppRpcHandler } from './types'
 import { isUrlPath } from './utilities'
 
 /**
@@ -16,64 +17,84 @@ import { isUrlPath } from './utilities'
 */
 
 export class VppRouter extends EventEmitter {
-  private rpcSubPaths = new Set<string>()
-  private getHandlers = new Map<string, VppHandler[]>()
-  private setHandlers = new Map<string, VppHandler[]>()
-  private dgramHandlers = new Map<string, VppHandler[]>()
+  protected rpcHandlers = new Map<string, VppRpcHandler[]>()
+  protected dgramHandlers = new Map<string, VppDgramHandler[]>()
+  private basePubCallbacks = new Set<VppPublish>()
 
-  get (subPath: string, ...handlers: VppHandler[]) {
-    assertArguments(subPath, handlers)
-    addHandlers(subPath, handlers, this.getHandlers)
-    this.rpcSubPaths.add(subPath)
+  constructor (captureRejections = false) {
+    super({ captureRejections })
   }
 
-  set (subPath: string, ...handlers: VppHandler[]) {
+  get (subPath: string, ...handlers: VppRpcHandler[]) {
     assertArguments(subPath, handlers)
-    addHandlers(subPath, handlers, this.setHandlers)
-    this.rpcSubPaths.add(subPath)
+    handlers.forEach(h => { h[kRpcMethod] = VsoaRpcMethod.GET })
+    addHandlers(subPath, handlers, this.rpcHandlers)
   }
 
-  /**
-  * Send datagram to the specified url
-  * @param {string} subPath sub url path of this router module
-  * @param  {...any} handlers
-  */
-  dgram (subPath: string, ...handlers: VppHandler[]) {
+  set (subPath: string, ...handlers: VppRpcHandler[]) {
+    assertArguments(subPath, handlers)
+    handlers.forEach(h => { h[kRpcMethod] = VsoaRpcMethod.SET })
+    addHandlers(subPath, handlers, this.rpcHandlers)
+  }
+
+  dgram (subPath: string, ...handlers: VppDgramHandler[]) {
     assertArguments(subPath, handlers)
     addHandlers(subPath, handlers, this.dgramHandlers)
   }
 
-  /**
-  * @param {string} [subPath]
-  * @param {*} payload
-  */
-  publish (subPath: string|VsoaPayload, payload?: VsoaPayload) {
-    if (payload === undefined) {
-      payload = subPath
-      subPath = '/'
+  use (subPath?: string, ...routers: VppRouter[]) {
+    assert(subPath && typeof subPath === 'string', 'url path must be a string')
+    assert(routers.every(r => r instanceof VppRouter), 'url router must be a VppRouter')
+
+    const self = this
+    const usePath = subPath || ''
+
+    for (const router of routers) {
+      router[kBasePubCallbacks].add(function (payload: VsoaPayload, subPath?: string) {
+        const joinedPath = path.join(usePath, subPath || '')
+        self.publish(payload, joinedPath)
+      })
+
+      for (const [subPath, dgramHandlers] of router[kDgramHandlers]) {
+        const joinedPath = path.join(usePath, subPath)
+        addHandlers(joinedPath, dgramHandlers, self.dgramHandlers)
+      }
+
+      for (const [subPath, rpcHandlers] of router[kRpcHandlers]) {
+        const joinedPath = path.join(usePath, subPath)
+        addHandlers(joinedPath, rpcHandlers, self.rpcHandlers)
+      }
     }
-    this.emit('publish', subPath, payload)
+  }
+
+  /**
+   * @param {VsoaPayload} payload
+   * @param {string} [subPath]
+   */
+  publish (payload: VsoaPayload, subPath?: string) {
+    for (const basePub of this[kBasePubCallbacks]) {
+      basePub(payload, subPath)
+    }
   }
 
   /**
    * Symbol protected memebers: internal use only
    */
-  get [kRpcGetHandlers] () { return this.getHandlers.values() }
-  get [kRpcSetHandlers] () { return this.setHandlers.values() }
+  get [kRpcHandlers] () { return this.rpcHandlers.entries() }
   get [kDgramHandlers] () { return this.dgramHandlers.entries() }
-  get [kRpcSubPaths] () { return this.rpcSubPaths.values() }
+  get [kBasePubCallbacks] () { return this.basePubCallbacks }
 }
 
-function assertArguments (path: string, handlers: VppHandler[]) {
+function assertArguments<T> (path: string, handlers: T[]) {
   assert(isUrlPath(path), `Invalid url path: "${path}"`)
   assert(handlers.length > 0 && handlers.every(f => typeof f === 'function'),
     'handler function(s) must be provided')
 }
 
-function addHandlers (
+function addHandlers<T> (
   subPath: string,
-  handlers: VppHandler[],
-  targetContainer: Map<string, VppHandler[]>) {
+  handlers: T[],
+  targetContainer: Map<string, T[]>) {
   if (targetContainer.has(subPath)) {
     targetContainer.set(subPath, targetContainer.get(subPath)!.concat(handlers))
   } else {

@@ -1,29 +1,26 @@
-/**
- * server.publish(url[, payload])
- * server.syncer(cli, request, payload, target[, setter])
- * server.createStream([timeout])
- *
- * cli.reply(code, seqno[, payload][, tunid])
- * cli.datagram(url, payload)
- */
-
-import path from 'path'
 import { Server, RemoteClient, VsoaRpc, VsoaPayload } from 'vsoa'
-import { VppHandler } from './vpp-types'
+import { kRpcMethod } from './symbols'
+import {
+  VppDgramHandler, VppDgramRequest, VppDgramResponse,
+  VppRpcHandler, VppRpcRequest, VppRpcResponse,
+  VppHandler, VppRequest, VppResponse, VppError
+} from './types'
 
-export function RpcForward (
-  rpcHandlersIter: IterableIterator<VppHandler[]>,
+export async function RpcForward (
+  rpcHandlers: VppRpcHandler[],
   server: Server, cli: RemoteClient,
   rpc: VsoaRpc, payload: VsoaPayload) {
+//
   const urlpath = rpc.url
-  const req = {
+  const req: VppRpcRequest = {
+    cli,
     url: urlpath,
     seqno: rpc.seqno,
     method: rpc.method,
     payload
   }
 
-  const res = {
+  const res: VppRpcResponse = {
     reply (payload: VsoaPayload, code = 0, seqno = rpc.seqno) {
       cli.reply(code, seqno, payload)
       return res
@@ -39,38 +36,43 @@ export function RpcForward (
     }
   }
 
-  for (const rpcHandlers of rpcHandlersIter) {
-    for (const handler of rpcHandlers) {
-      try {
-        handler(req, res)
-      } catch (err) {
-        break
-      }
+  for (const handler of rpcHandlers) {
+    if (handler[kRpcMethod] !== rpc.method) {
+      continue
     }
+    await callHandler(req, res, handler)
   }
 }
 
-export function DgramForward (
-  dgramHandlersIter: IterableIterator<[string, VppHandler[]]>,
-  basePath: string, server: Server, cli: RemoteClient,
+export async function DgramForward (
+  dgramHandlers: VppDgramHandler[],
+  server: Server, cli: RemoteClient,
   urlpath: string, payload: VsoaPayload) {
-  const res = {
+//
+  const req: VppDgramRequest = Object.assign({ url: urlpath, cli }, payload)
+  const res: VppDgramResponse = {
     datagram (payload: VsoaPayload, url = urlpath) {
       cli.datagram(url, payload)
       return res
     }
   }
 
-  for (const [subPath, dgramHandlers] of dgramHandlersIter) {
-    const fullPath = path.join(basePath, subPath)
-    if (urlpath !== fullPath) continue
-
-    for (const dgramHandler of dgramHandlers) {
-      try {
-        dgramHandler(payload, res)
-      } catch (err) {
-        break
-      }
-    }
+  for (const handler of dgramHandlers) {
+    await callHandler(req, res, handler)
   }
+}
+
+function callHandler (req: VppRequest, res: VppResponse, handler: VppHandler) {
+  return new Promise<void>(function (resolve, reject) {
+    try {
+      handler(req, res, function (err: any) {
+        if (err) {
+          return reject(new VppError(req, res, err))
+        }
+        resolve()
+      })
+    } catch (err) {
+      reject(new VppError(req, res, err))
+    }
+  })
 }

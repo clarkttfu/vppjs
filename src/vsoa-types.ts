@@ -7,12 +7,17 @@ declare module 'vsoa' {
   type Callback = (err?: Error) => void
 
   // RPC methods
-  const enum method {
+  enum VsoaRpcMethod {
     GET = 0,
     SET = 1
   }
+  namespace method {
+    const GET: VsoaRpcMethod.GET
+    const SET: VsoaRpcMethod.SET
+  }
+
   // RPC return code
-  const enum code {
+  enum VsoaRpcCode {
     SUCCESS = 0,
     PASSWORD = 1,
     ARGUMENTS = 2,
@@ -20,6 +25,15 @@ declare module 'vsoa' {
     NO_RESPONDING = 4,
     NO_PERMISSIONS = 5,
     NO_MEMORY = 6
+  }
+  namespace code {
+    const SUCCESS: VsoaRpcCode.SUCCESS
+    const PASSWORD: VsoaRpcCode.PASSWORD
+    const ARGUMENTS: VsoaRpcCode.ARGUMENTS
+    const INVALID_URL: VsoaRpcCode.INVALID_URL
+    const NO_RESPONDING: VsoaRpcCode.NO_RESPONDING
+    const NO_PERMISSIONS: VsoaRpcCode.NO_PERMISSIONS
+    const NO_MEMORY: VsoaRpcCode.NO_MEMORY
   }
 
   const enum NetDomain {
@@ -39,7 +53,7 @@ declare module 'vsoa' {
   interface VsoaRpc {
     url: string,
     seqno: number,
-    method: method
+    method: VsoaRpcMethod
   }
 
   interface VsoaStream extends Duplex {

@@ -2,9 +2,12 @@
   "name": "vppjs",
   "version": "0.1.0",
   "description": "VSOA app framework like Express.js",
-  "main": "index.js",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "scripts": {
-    "build": "tsc --build --clean && tsc",
+    "clean": "tsc --build --clean ",
+    "prebuild": "npm run clean",
+    "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "test": "tape test/**/*.js | tap-spec"
   },

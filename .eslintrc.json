@@ -14,7 +14,7 @@
     "plugins": [
         "@typescript-eslint"
     ],
-    "ignorePatterns": ["dist"],
+    "ignorePatterns": ["*.d.ts"],
     "rules": {
         "eol-last": "off"
     }
