@@ -1,8 +1,12 @@
-import { RemoteClient, VsoaPayload, VsoaRpcMethod, VsoaStream } from 'vsoa'
+import { RemoteClient, VsoaPayload, method as VsoaRpcMethod, VsoaStream } from 'vsoa'
 import { kRpcMethod } from './symbols'
 
+declare interface VppRouter {}
+
+export type VppPayload = string | Buffer | object
 export type VppCallback = (err?: Error, data?: any) => void
-export type VppPublish = (payload: VsoaPayload, subPath?: string) => void
+
+export type VppPublish = (payload: VppPayload, subPath?: string) => VppRouter
 
 export interface VppRpcRequest {
   url: string,
@@ -12,9 +16,9 @@ export interface VppRpcRequest {
   payload: VsoaPayload
 }
 export interface VppRpcResponse {
-  reply (payload?: VsoaPayload, code?: number, seqno?: number): void
+  reply (payload?: VppPayload, code?: number, seqno?: number): void
   createStream (timeout?: number): VsoaStream
-  datagram (payload: VsoaPayload, url?: string): void
+  datagram (payload: VppPayload, url?: string): void
 }
 
 export type VppRpcHandler = {(
@@ -22,7 +26,7 @@ export type VppRpcHandler = {(
   res: VppRpcResponse,
   next?: VppCallback
 ): void,
-  [kRpcMethod]: VsoaRpcMethod
+  [kRpcMethod]?: VsoaRpcMethod
 }
 
 export interface VppDgramRequest extends VsoaPayload {
@@ -30,7 +34,7 @@ export interface VppDgramRequest extends VsoaPayload {
   cli: RemoteClient
 }
 export interface VppDgramResponse {
-  datagram (payload: VsoaPayload, url?: string): void
+  datagram (payload: VppPayload, url?: string): void
 }
 export type VppDgramHandler = (
   req: VppDgramRequest,

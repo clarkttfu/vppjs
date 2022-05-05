@@ -3,7 +3,7 @@ import { kRpcMethod } from './symbols'
 import {
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
   VppRpcHandler, VppRpcRequest, VppRpcResponse,
-  VppHandler, VppRequest, VppResponse, VppError
+  VppHandler, VppRequest, VppResponse, VppError, VppPayload
 } from './types'
 
 export async function RpcForward (
@@ -21,8 +21,8 @@ export async function RpcForward (
   }
 
   const res: VppRpcResponse = {
-    reply (payload: VsoaPayload, code = 0, seqno = rpc.seqno) {
-      cli.reply(code, seqno, payload)
+    reply (payload: VppPayload, code = 0, seqno = rpc.seqno) {
+      cli.reply(code, seqno, buildVsoaPayload(payload))
       return res
     },
     createStream (timeout?: number) {
@@ -30,8 +30,8 @@ export async function RpcForward (
       cli.reply(0, rpc.seqno, stream.tunid)
       return stream
     },
-    datagram (payload: VsoaPayload, url = urlpath) {
-      cli.datagram(url, payload)
+    datagram (payload: VppPayload, url = urlpath) {
+      cli.datagram(url, buildVsoaPayload(payload))
       return res
     }
   }
@@ -51,14 +51,30 @@ export async function DgramForward (
 //
   const req: VppDgramRequest = Object.assign({ url: urlpath, cli }, payload)
   const res: VppDgramResponse = {
-    datagram (payload: VsoaPayload, url = urlpath) {
-      cli.datagram(url, payload)
+    datagram (payload: VppPayload, url = urlpath) {
+      cli.datagram(url, buildVsoaPayload(payload))
       return res
     }
   }
 
   for (const handler of dgramHandlers) {
     await callHandler(req, res, handler)
+  }
+}
+
+function buildVsoaPayload (payload: VppPayload) {
+  if (typeof payload === 'object') {
+    if ('param' in (payload as VsoaPayload) || 'data' in payload) {
+      return payload
+    } else {
+      return { param: payload }
+    }
+  } else if (typeof payload === 'string') {
+    return { param: payload }
+  } else if (Buffer.isBuffer(payload)) {
+    return { data: payload }
+  } else {
+    throw TypeError(`Invalid payload type ${typeof payload}`)
   }
 }
 

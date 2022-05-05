@@ -1,7 +1,7 @@
 import path from 'path'
 import assert from 'assert'
 import { EventEmitter } from 'events'
-import { VsoaPayload, VsoaRpcMethod } from 'vsoa'
+import { VsoaPayload, method as VsoaRpcMethod } from 'vsoa'
 import { kDgramHandlers, kRpcHandlers, kBasePubCallbacks, kRpcMethod } from './symbols'
 import { VppPublish, VppDgramHandler, VppRpcHandler } from './types'
 import { isUrlPath } from './utilities'
@@ -25,24 +25,27 @@ export class VppRouter extends EventEmitter {
     super({ captureRejections })
   }
 
-  get (subPath: string, ...handlers: VppRpcHandler[]) {
+  get (subPath: string, ...handlers: VppRpcHandler[]): VppRouter {
     assertArguments(subPath, handlers)
     handlers.forEach(h => { h[kRpcMethod] = VsoaRpcMethod.GET })
     addHandlers(subPath, handlers, this.rpcHandlers)
+    return this
   }
 
-  set (subPath: string, ...handlers: VppRpcHandler[]) {
+  set (subPath: string, ...handlers: VppRpcHandler[]): VppRouter {
     assertArguments(subPath, handlers)
     handlers.forEach(h => { h[kRpcMethod] = VsoaRpcMethod.SET })
     addHandlers(subPath, handlers, this.rpcHandlers)
+    return this
   }
 
-  dgram (subPath: string, ...handlers: VppDgramHandler[]) {
+  dgram (subPath: string, ...handlers: VppDgramHandler[]): VppRouter {
     assertArguments(subPath, handlers)
     addHandlers(subPath, handlers, this.dgramHandlers)
+    return this
   }
 
-  use (subPath?: string, ...routers: VppRouter[]) {
+  use (subPath?: string, ...routers: VppRouter[]): VppRouter {
     assert(subPath && typeof subPath === 'string', 'url path must be a string')
     assert(routers.every(r => r instanceof VppRouter), 'url router must be a VppRouter')
 
@@ -52,7 +55,7 @@ export class VppRouter extends EventEmitter {
     for (const router of routers) {
       router[kBasePubCallbacks].add(function (payload: VsoaPayload, subPath?: string) {
         const joinedPath = path.join(usePath, subPath || '')
-        self.publish(payload, joinedPath)
+        return self.publish(payload, joinedPath)
       })
 
       for (const [subPath, dgramHandlers] of router[kDgramHandlers]) {
@@ -65,16 +68,18 @@ export class VppRouter extends EventEmitter {
         addHandlers(joinedPath, rpcHandlers, self.rpcHandlers)
       }
     }
+    return this
   }
 
   /**
    * @param {VsoaPayload} payload
    * @param {string} [subPath]
    */
-  publish (payload: VsoaPayload, subPath?: string) {
+  publish (payload: VsoaPayload, subPath?: string): VppRouter {
     for (const basePub of this[kBasePubCallbacks]) {
       basePub(payload, subPath)
     }
+    return this
   }
 
   /**

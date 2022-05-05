@@ -4,20 +4,16 @@ declare module 'vsoa' {
   import { Duplex, EventEmitter } from 'stream'
   import { TlsOptions } from 'tls'
 
-  type Callback = (err?: Error) => void
+  export type Callback = (err?: Error) => void
 
   // RPC methods
-  enum VsoaRpcMethod {
+  enum method {
     GET = 0,
     SET = 1
   }
-  namespace method {
-    const GET: VsoaRpcMethod.GET
-    const SET: VsoaRpcMethod.SET
-  }
 
   // RPC return code
-  enum VsoaRpcCode {
+  enum code {
     SUCCESS = 0,
     PASSWORD = 1,
     ARGUMENTS = 2,
@@ -25,15 +21,6 @@ declare module 'vsoa' {
     NO_RESPONDING = 4,
     NO_PERMISSIONS = 5,
     NO_MEMORY = 6
-  }
-  namespace code {
-    const SUCCESS: VsoaRpcCode.SUCCESS
-    const PASSWORD: VsoaRpcCode.PASSWORD
-    const ARGUMENTS: VsoaRpcCode.ARGUMENTS
-    const INVALID_URL: VsoaRpcCode.INVALID_URL
-    const NO_RESPONDING: VsoaRpcCode.NO_RESPONDING
-    const NO_PERMISSIONS: VsoaRpcCode.NO_PERMISSIONS
-    const NO_MEMORY: VsoaRpcCode.NO_MEMORY
   }
 
   const enum NetDomain {
@@ -53,7 +40,7 @@ declare module 'vsoa' {
   interface VsoaRpc {
     url: string,
     seqno: number,
-    method: VsoaRpcMethod
+    method: method
   }
 
   interface VsoaStream extends Duplex {
@@ -61,7 +48,7 @@ declare module 'vsoa' {
   }
 
   interface VsoaPayload {
-    param?: object,
+    param?: string | object,
     data?: Buffer,
     offset?: number,
     length?: number

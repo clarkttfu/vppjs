@@ -1,16 +1,18 @@
 import assert from 'assert'
 import { isIPv4 } from 'net'
 import { Server, AF_INET, AF_INET6, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
-import { VppCallback, VppDgramHandler, VppDgramRequest, VppDgramResponse, VppError, VppRpcHandler, VppRpcRequest, VppRpcResponse } from './types'
+import {
+  VppCallback, VppError,
+  VppDgramHandler, VppDgramRequest, VppDgramResponse,
+  VppRpcHandler, VppRpcRequest, VppRpcResponse
+} from './types'
 import { RpcForward, DgramForward } from './adapters'
 import { VppRouter } from './router'
 
-export default vppjs
-export function Router (this: any) {
-  if (!(this instanceof VppRouter)) {
-    return new VppRouter()
-  }
-}
+export { Server, RemoteClient, VsoaPayload }
+export { VppRouter, VppCallback, VppError }
+export { VppDgramHandler, VppDgramRequest, VppDgramResponse }
+export { VppRpcHandler, VppRpcRequest, VppRpcResponse }
 
 export interface VppOptions {
   info?: string,
@@ -23,7 +25,7 @@ export class Vpp extends VppRouter {
   private server: Server
   private serverTlsOpt: undefined | object
 
-  constructor (options: VppOptions) {
+  constructor (options?: VppOptions) {
     const opt: VppOptions = Object.assign({ info: 'Edge Container Stack Daemon' }, options)
     super(opt.captureRejections)
     this.server = new Server({ info: opt.info!, passwd: opt.passwd })
@@ -62,6 +64,7 @@ export class Vpp extends VppRouter {
 
     const self = this
     const server = self.server
+    initializeRoutes(server, this.dgramHandlers, this.rpcHandlers)
 
     server.onclient = function (cli: RemoteClient, connect: boolean) {
       if (connect) {
@@ -70,8 +73,6 @@ export class Vpp extends VppRouter {
         self.emit('disconnect', cli, server)
       }
     }
-
-    initializeRoutes(server, this.dgramHandlers, this.rpcHandlers)
     server.start(saddr, self.serverTlsOpt, callback)
 
     return self
@@ -84,11 +85,17 @@ export class Vpp extends VppRouter {
 
   publish (payload: VsoaPayload, urlpath = '/') {
     this.server.publish(urlpath, payload)
+    return this
   }
 }
 
-function vppjs (vppOpt: VppOptions) {
+export default vpp
+export function vpp (vppOpt?: VppOptions): Vpp {
   return new Vpp(vppOpt)
+}
+
+export function router (this: any, captureRejections = false): VppRouter {
+  return new VppRouter(captureRejections)
 }
 
 function initializeRoutes (
