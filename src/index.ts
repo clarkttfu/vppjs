@@ -1,5 +1,4 @@
 import assert from 'assert'
-import { isIPv4 } from 'net'
 import { Server, AF_INET, AF_INET6, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
 import {
   VppCallback, VppError,
@@ -8,6 +7,7 @@ import {
 } from './types'
 import { RpcForward, DgramForward } from './adapters'
 import { VppRouter } from './router'
+import { isIPv4 } from './utilities'
 
 export { Server, RemoteClient, VsoaPayload }
 export { VppRouter, VppCallback, VppError }
