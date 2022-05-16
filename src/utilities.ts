@@ -1,11 +1,13 @@
 import assert from 'assert'
 
-declare global {
-  // eslint-disable-next-line no-unused-vars
-  const Task: Function
-}
-
-const IS_JSRE = typeof global.Task === 'function'
+const IS_JSRE = (function () {
+  try {
+    // eslint-disable-next-line n/no-deprecated-api
+    return require('sys').kernName() === 'SylixOS'
+  } catch (err) {
+    return false
+  }
+})()
 
 export function isUrlPath (urlpath?: string) {
   return urlpath && typeof urlpath === 'string' && urlpath.startsWith('/')
