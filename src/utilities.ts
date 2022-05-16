@@ -2,6 +2,7 @@ import assert from 'assert'
 
 const IS_JSRE = (function () {
   try {
+    require('iosched')
     // eslint-disable-next-line n/no-deprecated-api
     return require('sys').kernName() === 'SylixOS'
   } catch (err) {
