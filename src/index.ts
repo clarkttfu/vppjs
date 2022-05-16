@@ -102,7 +102,7 @@ function initializeRoutes (
   server: Server,
   dgramRoutes: Map<string, VppDgramHandler[]>,
   rpcRoutes: Map<string, VppRpcHandler[]>,
-  defaultErrorCode = 128) {
+  defaultErrorCode = 199) {
   server.ondata = function (cli: RemoteClient, urlpath: string, payload: VsoaPayload) {
     if (dgramRoutes.has(urlpath)) {
       const promise = DgramForward(dgramRoutes.get(urlpath)!, server, cli, urlpath, payload)
