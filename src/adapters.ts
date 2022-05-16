@@ -2,9 +2,11 @@ import { Server, RemoteClient, VsoaRpc, VsoaPayload } from 'vsoa'
 import { kRpcMethod } from './symbols'
 import {
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
-  VppRpcHandler, VppRpcRequest, VppRpcResponse,
-  VppHandler, VppRequest, VppResponse, VppError, VppPayload
+  VppRpcHandler, VppRpcRequest, VppRpcResponse, VppPayload,
+  VppHandler, VppRequest, VppResponse, VppError, VppBreak
 } from './types'
+
+const routerBreak = new VppBreak()
 
 export async function RpcForward (
   rpcHandlers: VppRpcHandler[],
@@ -71,6 +73,8 @@ function buildVsoaPayload (payload: VppPayload) {
     }
   } else if (typeof payload === 'string') {
     return { param: payload }
+  } else if (payload == null) {
+    return {}
   } else if (Buffer.isBuffer(payload)) {
     return { data: payload }
   } else {
@@ -86,7 +90,7 @@ function callHandler (req: VppRequest, res: VppResponse, handler: VppHandler) {
         if (isPromiseLike(promise)) {
           promise!.then(resolve, err => reject(new VppError(req, res, err)))
         } else {
-          resolve()
+          reject(routerBreak)
         }
       } catch (err) {
         reject(err)
