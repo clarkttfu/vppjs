@@ -45,12 +45,16 @@ export class VppRouter extends EventEmitter {
     return this
   }
 
-  use (subPath?: string, ...routers: VppRouter[]): VppRouter {
+  use (subPath: string|VppRouter, ...routers: VppRouter[]): VppRouter {
+    if (subPath instanceof VppRouter) {
+      routers.unshift(subPath)
+      subPath = '/'
+    }
     assert(subPath && typeof subPath === 'string', 'url path must be a string')
     assert(routers.every(r => r instanceof VppRouter), 'url router must be a VppRouter')
 
     const self = this
-    const usePath = subPath || ''
+    const usePath = subPath
 
     for (const router of routers) {
       router[kBasePubCallbacks].add(function (payload: VsoaPayload, subPath?: string) {
