@@ -25,7 +25,7 @@ export type VppRpcHandler = {(
   req: VppRpcRequest,
   res: VppRpcResponse,
   next?: VppCallback
-): void,
+): Promise<any>|undefined,
   [kRpcMethod]?: VsoaRpcMethod
 }
 
@@ -40,11 +40,11 @@ export type VppDgramHandler = (
   req: VppDgramRequest,
   res: VppDgramResponse,
   next?: VppCallback
-) => void
+) => Promise<any>|undefined
 
 export type VppRequest = VppRpcRequest | VppDgramRequest
 export type VppResponse = VppRpcResponse | VppDgramResponse
-export type VppHandler = (req: any, res: any, next?: VppCallback) => void
+export type VppHandler = (req: any, res: any, next?: VppCallback) => Promise<any>|undefined
 
 export class VppError<U, V> extends Error {
   constructor (public req: U, public res: V, public cause: any) {

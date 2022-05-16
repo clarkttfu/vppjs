@@ -80,15 +80,39 @@ function buildVsoaPayload (payload: VppPayload) {
 
 function callHandler (req: VppRequest, res: VppResponse, handler: VppHandler) {
   return new Promise<void>(function (resolve, reject) {
-    try {
-      handler(req, res, function (err: any) {
-        if (err) {
-          return reject(new VppError(req, res, err))
+    if (handler.length < 3) {
+      try {
+        const promise = handler(req, res)
+        if (isPromiseLike(promise)) {
+          promise!.then(resolve, err => reject(new VppError(req, res, err)))
+        } else {
+          resolve()
         }
-        resolve()
-      })
-    } catch (err) {
-      reject(new VppError(req, res, err))
+      } catch (err) {
+        reject(err)
+      }
+    } else {
+      try {
+        handler(req, res, function (err: any) {
+          if (err) {
+            return reject(new VppError(req, res, err))
+          }
+          resolve()
+        })
+      } catch (err) {
+        reject(new VppError(req, res, err))
+      }
     }
   })
+}
+
+function isPromiseLike (p: any) {
+  if (p) {
+    if (p instanceof Promise) {
+      return true
+    }
+    if (typeof p === 'object' && typeof p.then === 'function') {
+      return true
+    }
+  }
 }
