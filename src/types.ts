@@ -51,3 +51,9 @@ export class VppError<U, V> extends Error {
     super(cause instanceof Error ? cause.message : String(cause))
   }
 }
+
+export class VppBreak extends Error {
+  constructor () {
+    super('Vppjs Router break')
+  }
+}

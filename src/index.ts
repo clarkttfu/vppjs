@@ -3,7 +3,7 @@ import { Server, AF_INET, AF_INET6, VsoaPayload, VsoaRpc, RemoteClient } from 'v
 import {
   VppCallback, VppError,
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
-  VppRpcHandler, VppRpcRequest, VppRpcResponse
+  VppRpcHandler, VppRpcRequest, VppRpcResponse, VppBreak
 } from './types'
 import { RpcForward, DgramForward } from './adapters'
 import { VppRouter } from './router'
@@ -108,7 +108,9 @@ function initializeRoutes (
       const promise = DgramForward(dgramRoutes.get(urlpath)!, server, cli, urlpath, payload)
       promise.catch((err: VppError<VppDgramRequest, VppDgramResponse>) => {
         // default error handler
-        console.log(`Dgram handler error ${urlpath}`, err.cause)
+        if (!(err instanceof VppBreak)) {
+          console.log(`Dgram handler error ${urlpath}`, err.cause)
+        }
       })
     }
   }
@@ -118,8 +120,10 @@ function initializeRoutes (
       const promise = RpcForward(rpcHandlers, server, cli, req, payload)
       promise.catch((err: VppError<VppRpcRequest, VppRpcResponse>) => {
         // default error handler
-        console.log(`Dgram handler error ${req.url}`, err.cause)
-        err.res.reply(undefined, defaultErrorCode)
+        if (!(err instanceof VppBreak)) {
+          console.log(`Dgram handler error ${req.url}`, err.cause)
+          err.res.reply(undefined, defaultErrorCode)
+        }
       })
     })
   }
