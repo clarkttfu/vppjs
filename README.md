@@ -29,3 +29,8 @@ router.set('/user/', (req, res) => {
 
 vpp.use('/foo', router);
 ```
+
+TODO
+- [ ] more tests
+- [ ] accept error handlers
+- [ ] scaffolding scripts
