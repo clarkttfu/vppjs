@@ -19,17 +19,20 @@ export interface VppOptions {
   passwd?: string,
   tlsOpt?: object
   captureRejections?: boolean
+  defaultErrorCode?: number
 }
 
 export class Vpp extends VppRouter {
   private server: Server
   private serverTlsOpt: undefined | object
+  private defaultErrorCode: number
 
   constructor (options?: VppOptions) {
     const opt: VppOptions = Object.assign({ info: 'Edge Container Stack Daemon' }, options)
     super(opt.captureRejections)
     this.server = new Server({ info: opt.info!, passwd: opt.passwd })
     this.serverTlsOpt = opt.tlsOpt
+    this.defaultErrorCode = opt.defaultErrorCode || 199
   }
 
   /**
@@ -64,7 +67,7 @@ export class Vpp extends VppRouter {
 
     const self = this
     const server = self.server
-    initializeRoutes(server, this.dgramHandlers, this.rpcHandlers)
+    initializeRoutes(server, this.dgramHandlers, this.rpcHandlers, this.defaultErrorCode)
 
     server.onclient = function (cli: RemoteClient, connect: boolean) {
       if (connect) {
@@ -102,7 +105,7 @@ function initializeRoutes (
   server: Server,
   dgramRoutes: Map<string, VppDgramHandler[]>,
   rpcRoutes: Map<string, VppRpcHandler[]>,
-  defaultErrorCode = 199) {
+  defaultErrorCode: number) {
   server.ondata = function (cli: RemoteClient, urlpath: string, payload: VsoaPayload) {
     if (dgramRoutes.has(urlpath)) {
       const promise = DgramForward(dgramRoutes.get(urlpath)!, server, cli, urlpath, payload)
@@ -121,7 +124,7 @@ function initializeRoutes (
       promise.catch((err: VppError<VppRpcRequest, VppRpcResponse>) => {
         // default error handler
         if (!(err instanceof VppBreak)) {
-          console.log(`Dgram handler error ${req.url}`, err.cause)
+          console.log(`Rpc handler error ${req.url}`, err.cause)
           err.res.reply(undefined, defaultErrorCode)
         }
       })
