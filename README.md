@@ -33,4 +33,5 @@ vpp.use('/foo', router);
 TODO
 - [ ] more tests
 - [ ] accept error handlers
+- [ ] simple request logging middleware
 - [ ] scaffolding scripts
