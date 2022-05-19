@@ -1,5 +1,5 @@
 import { Server, RemoteClient, VsoaRpc, VsoaPayload } from 'vsoa'
-import { kRpcMethod } from './symbols'
+import { kRpcGet, kRpcSet } from './symbols'
 import {
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
   VppRpcHandler, VppRpcRequest, VppRpcResponse, VppPayload,
@@ -39,10 +39,16 @@ export async function RpcForward (
   }
 
   for (const handler of rpcHandlers) {
-    if (handler[kRpcMethod] !== rpc.method) {
-      continue
+    switch (rpc.method) {
+      case 0:
+        if (handler[kRpcGet]) { await callHandler(req, res, handler) }
+        break
+      case 1:
+        if (handler[kRpcSet]) { await callHandler(req, res, handler) }
+        break
+      default:
+        break
     }
-    await callHandler(req, res, handler)
   }
 }
 

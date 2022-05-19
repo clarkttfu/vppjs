@@ -103,12 +103,12 @@ export function router (this: any, captureRejections = false): VppRouter {
 
 function initializeRoutes (
   server: Server,
-  dgramRoutes: Map<string, VppDgramHandler[]>,
-  rpcRoutes: Map<string, VppRpcHandler[]>,
+  dgramRoutes: Map<string, Set<VppDgramHandler>>,
+  rpcRoutes: Map<string, Set<VppRpcHandler>>,
   defaultErrorCode: number) {
   server.ondata = function (cli: RemoteClient, urlpath: string, payload: VsoaPayload) {
     if (dgramRoutes.has(urlpath)) {
-      const promise = DgramForward(dgramRoutes.get(urlpath)!, server, cli, urlpath, payload)
+      const promise = DgramForward(Array.from(dgramRoutes.get(urlpath)!), server, cli, urlpath, payload)
       promise.catch((err: VppError<VppDgramRequest, VppDgramResponse>) => {
         // default error handler
         if (!(err instanceof VppBreak)) {
@@ -120,7 +120,7 @@ function initializeRoutes (
 
   for (const [subPath, rpcHandlers] of rpcRoutes) {
     server.on(subPath, function (cli: RemoteClient, req: VsoaRpc, payload: VsoaPayload) {
-      const promise = RpcForward(rpcHandlers, server, cli, req, payload)
+      const promise = RpcForward(Array.from(rpcHandlers), server, cli, req, payload)
       promise.catch((err: VppError<VppRpcRequest, VppRpcResponse>) => {
         // default error handler
         if (!(err instanceof VppBreak)) {

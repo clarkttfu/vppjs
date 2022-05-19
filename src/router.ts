@@ -1,8 +1,8 @@
 import path from 'path'
 import assert from 'assert'
 import { EventEmitter } from 'events'
-import { VsoaPayload, method as VsoaRpcMethod } from 'vsoa'
-import { kDgramHandlers, kRpcHandlers, kBasePubCallbacks, kRpcMethod } from './symbols'
+import { VsoaPayload } from 'vsoa'
+import { kDgramHandlers, kRpcHandlers, kBasePubCallbacks, kRpcGet, kRpcSet } from './symbols'
 import { VppPublish, VppDgramHandler, VppRpcHandler } from './types'
 import { isUrlPath } from './utilities'
 
@@ -17,8 +17,8 @@ import { isUrlPath } from './utilities'
 */
 
 export class VppRouter extends EventEmitter {
-  protected rpcHandlers = new Map<string, VppRpcHandler[]>()
-  protected dgramHandlers = new Map<string, VppDgramHandler[]>()
+  protected rpcHandlers = new Map<string, Set<VppRpcHandler>>()
+  protected dgramHandlers = new Map<string, Set<VppDgramHandler>>()
   private basePubCallbacks = new Set<VppPublish>()
 
   constructor (captureRejections = false) {
@@ -27,14 +27,14 @@ export class VppRouter extends EventEmitter {
 
   get (subPath: string, ...handlers: VppRpcHandler[]): VppRouter {
     assertArguments(subPath, handlers)
-    handlers.forEach(h => { h[kRpcMethod] = VsoaRpcMethod.GET })
+    handlers.forEach(h => { h[kRpcGet] = true })
     addHandlers(subPath, handlers, this.rpcHandlers)
     return this
   }
 
   set (subPath: string, ...handlers: VppRpcHandler[]): VppRouter {
     assertArguments(subPath, handlers)
-    handlers.forEach(h => { h[kRpcMethod] = VsoaRpcMethod.SET })
+    handlers.forEach(h => { h[kRpcSet] = true })
     addHandlers(subPath, handlers, this.rpcHandlers)
     return this
   }
@@ -64,12 +64,12 @@ export class VppRouter extends EventEmitter {
 
       for (const [subPath, dgramHandlers] of router[kDgramHandlers]) {
         const joinedPath = path.join(usePath, subPath)
-        addHandlers(joinedPath, dgramHandlers, self.dgramHandlers)
+        addHandlers(joinedPath, Array.from(dgramHandlers), self.dgramHandlers)
       }
 
       for (const [subPath, rpcHandlers] of router[kRpcHandlers]) {
         const joinedPath = path.join(usePath, subPath)
-        addHandlers(joinedPath, rpcHandlers, self.rpcHandlers)
+        addHandlers(joinedPath, Array.from(rpcHandlers), self.rpcHandlers)
       }
     }
     return this
@@ -103,10 +103,13 @@ function assertArguments<T> (path: string, handlers: T[]) {
 function addHandlers<T> (
   subPath: string,
   handlers: T[],
-  targetContainer: Map<string, T[]>) {
+  targetContainer: Map<string, Set<T>>) {
   if (targetContainer.has(subPath)) {
-    targetContainer.set(subPath, targetContainer.get(subPath)!.concat(handlers))
+    const origin = targetContainer.get(subPath)!
+    for (const handler of handlers) {
+      origin?.add(handler)
+    }
   } else {
-    targetContainer.set(subPath, handlers)
+    targetContainer.set(subPath, new Set(handlers))
   }
 }
