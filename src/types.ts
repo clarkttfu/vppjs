@@ -1,5 +1,5 @@
 import { RemoteClient, VsoaPayload, method as VsoaRpcMethod, VsoaStream } from 'vsoa'
-import { kRpcMethod } from './symbols'
+import { kRpcGet, kRpcSet } from './symbols'
 
 declare interface VppRouter {}
 
@@ -26,7 +26,8 @@ export type VppRpcHandler = {(
   res: VppRpcResponse,
   next?: VppCallback
 ): Promise<any>|undefined,
-  [kRpcMethod]?: VsoaRpcMethod
+  [kRpcGet]?: boolean
+  [kRpcSet]?: boolean
 }
 
 export interface VppDgramRequest extends VsoaPayload {
