@@ -9,7 +9,8 @@
     "prebuild": "npm run clean",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
-    "test": "tape -r ts-node/register test/**/*.test.ts | tap-spec"
+    "test": "tape -r ts-node/register test/**/*.test.ts | tap-spec",
+    "publish": "npm run lint && npm run test && npm run build && npm publish"
   },
   "keywords": [
     "vsoa"
