@@ -5,6 +5,7 @@ import {
   VppRpcHandler, VppRpcRequest, VppRpcResponse, VppPayload,
   VppHandler, VppRequest, VppResponse, VppError, VppBreak
 } from './types'
+import { buildVsoaPayload, isPromise } from './utilities'
 
 const routerBreak = new VppBreak()
 
@@ -70,30 +71,12 @@ export async function DgramForward (
   }
 }
 
-function buildVsoaPayload (payload: VppPayload) {
-  if (typeof payload === 'object') {
-    if ('param' in (payload as VsoaPayload) || 'data' in payload) {
-      return payload
-    } else {
-      return { param: payload }
-    }
-  } else if (typeof payload === 'string') {
-    return { param: payload }
-  } else if (payload == null) {
-    return {}
-  } else if (Buffer.isBuffer(payload)) {
-    return { data: payload }
-  } else {
-    throw TypeError(`Invalid payload type ${typeof payload}`)
-  }
-}
-
 function callHandler (req: VppRequest, res: VppResponse, handler: VppHandler) {
   return new Promise<void>(function (resolve, reject) {
     if (handler.length < 3) {
       try {
         const promise = handler(req, res)
-        if (isPromiseLike(promise)) {
+        if (isPromise(promise)) {
           promise!.then(resolve, err => reject(new VppError(req, res, err)))
         } else {
           reject(routerBreak)
@@ -114,15 +97,4 @@ function callHandler (req: VppRequest, res: VppResponse, handler: VppHandler) {
       }
     }
   })
-}
-
-function isPromiseLike (p: any) {
-  if (p) {
-    if (p instanceof Promise) {
-      return true
-    }
-    if (typeof p === 'object' && typeof p.then === 'function') {
-      return true
-    }
-  }
 }
