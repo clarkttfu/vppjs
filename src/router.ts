@@ -3,8 +3,8 @@ import assert from 'assert'
 import { EventEmitter } from 'events'
 import { VsoaPayload } from 'vsoa'
 import { kDgramHandlers, kRpcHandlers, kBasePubCallbacks, kRpcGet, kRpcSet } from './symbols'
-import { VppPublish, VppDgramHandler, VppRpcHandler } from './types'
-import { isUrlPath } from './utilities'
+import { VppPublish, VppDgramHandler, VppRpcHandler, VppPayload } from './types'
+import { buildVsoaPayload, isUrlPath } from './utilities'
 
 /**
 * Router class collect business handlers' setup; and Vpp link routers to the
@@ -79,9 +79,9 @@ export class VppRouter extends EventEmitter {
    * @param {VsoaPayload} payload
    * @param {string} [subPath]
    */
-  publish (payload: VsoaPayload, subPath?: string): VppRouter {
+  publish (payload: VppPayload, subPath?: string): VppRouter {
     for (const basePub of this[kBasePubCallbacks]) {
-      basePub(payload, subPath)
+      basePub(buildVsoaPayload(payload), subPath)
     }
     return this
   }
