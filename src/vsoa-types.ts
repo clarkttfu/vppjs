@@ -60,7 +60,7 @@ declare module 'vsoa' {
   }
 
   interface RemoteClient {
-    address(): string,
+    address(): { domain: NetDomain, addr: string, port: number },
     priority(p: number): void,
     setKeepAlive(b: boolean): void,
     sendTimeout(ms: number): void,
