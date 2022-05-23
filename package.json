@@ -1,6 +1,6 @@
 {
   "name": "vppjs",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "VSOA app framework like Express.js",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -10,7 +10,7 @@
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "test": "tape -r ts-node/register test/**/*.test.ts | tap-spec",
-    "publish": "npm run lint && npm run test && npm run build && npm publish"
+    "prepublish": "npm run lint && npm run test && npm run build"
   },
   "keywords": [
     "vsoa"

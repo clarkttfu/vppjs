@@ -28,7 +28,7 @@ export class Vpp extends VppRouter {
   private defaultErrorCode: number
 
   constructor (options?: VppOptions) {
-    const opt: VppOptions = Object.assign({ info: 'Edge Container Stack Daemon' }, options)
+    const opt: VppOptions = Object.assign({ info: 'Vpp.js' }, options)
     super(opt.captureRejections)
     this.server = new Server({ info: opt.info!, passwd: opt.passwd })
     this.serverTlsOpt = opt.tlsOpt
