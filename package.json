@@ -1,6 +1,6 @@
 {
   "name": "vppjs",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "VSOA app framework like Express.js",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -18,7 +18,7 @@
   "author": "clarkttfu@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "vsoa": "^0.2.4"
+    "vsoa": ">=0.2.4-b"
   },
   "devDependencies": {
     "@types/node": "^17.0.29",
