@@ -1,4 +1,4 @@
-import { RemoteClient, VsoaPayload, method as VsoaRpcMethod, VsoaStream } from 'vsoa'
+import { RemoteClient, VsoaPayload, method as VsoaRpcMethod, VsoaStream, Server } from 'vsoa'
 import { kRpcGet, kRpcSet } from './symbols'
 
 declare interface VppRouter {}
@@ -16,6 +16,7 @@ export interface VppRpcRequest {
   payload: VsoaPayload
 }
 export interface VppRpcResponse {
+  server: Server,
   reply (payload?: VppPayload, code?: number, seqno?: number): void
   createStream (timeout?: number): VsoaStream
   datagram (payload: VppPayload, url?: string): void
@@ -30,11 +31,13 @@ export type VppRpcHandler = {(
   [kRpcSet]?: boolean
 }
 
-export interface VppDgramRequest extends VsoaPayload {
+export interface VppDgramRequest {
   url: string,
-  cli: RemoteClient
+  cli: RemoteClient,
+  payload: VsoaPayload
 }
 export interface VppDgramResponse {
+  server: Server,
   datagram (payload: VppPayload, url?: string): void
 }
 export type VppDgramHandler = (

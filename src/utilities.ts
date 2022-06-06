@@ -46,6 +46,8 @@ export function buildVsoaPayload (payload: VppPayload): VsoaPayload {
     }
   } else if (typeof payload === 'string') {
     return { param: payload }
+  } else if (typeof payload === 'number') {
+    return { param: payload }
   } else if (payload == null) {
     return {}
   } else if (Buffer.isBuffer(payload)) {
