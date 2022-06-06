@@ -24,6 +24,7 @@ export async function RpcForward (
   }
 
   const res: VppRpcResponse = {
+    server,
     reply (payload: VppPayload, code = 0, seqno = rpc.seqno) {
       cli.reply(code, seqno, buildVsoaPayload(payload))
       return res
@@ -58,8 +59,9 @@ export async function DgramForward (
   server: Server, cli: RemoteClient,
   urlpath: string, payload: VsoaPayload) {
 //
-  const req: VppDgramRequest = Object.assign({ url: urlpath, cli }, payload)
+  const req: VppDgramRequest = { url: urlpath, cli, payload }
   const res: VppDgramResponse = {
+    server,
     datagram (payload: VppPayload, url = urlpath) {
       cli.datagram(url, buildVsoaPayload(payload))
       return res
