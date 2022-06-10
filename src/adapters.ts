@@ -29,14 +29,18 @@ export async function RpcForward (
       cli.reply(code, seqno, buildVsoaPayload(payload))
       return res
     },
-    createStream (timeout?: number) {
-      const stream = server.createStream(timeout)
-      cli.reply(0, rpc.seqno, stream.tunid)
-      return stream
+    pulish (payload: VppPayload, url = urlpath) {
+      server.publish(url, buildVsoaPayload(payload))
+      return res
     },
     datagram (payload: VppPayload, url = urlpath) {
       cli.datagram(url, buildVsoaPayload(payload))
       return res
+    },
+    createStream (timeout?: number) {
+      const stream = server.createStream(timeout)
+      cli.reply(0, rpc.seqno, stream.tunid)
+      return stream
     }
   }
 
@@ -62,6 +66,10 @@ export async function DgramForward (
   const req: VppDgramRequest = { url: urlpath, cli, payload }
   const res: VppDgramResponse = {
     server,
+    pulish (payload: VppPayload, url = urlpath) {
+      server.publish(url, buildVsoaPayload(payload))
+      return res
+    },
     datagram (payload: VppPayload, url = urlpath) {
       cli.datagram(url, buildVsoaPayload(payload))
       return res

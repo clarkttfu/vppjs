@@ -156,19 +156,22 @@ Incoming raw *{VsoaPayload}* object, see [publish section](#vpppublish-payload-u
 #### res.server
 Raw VSOA Server object, which might be used for advanced usecases.
 
-#### res.reply(payload[, code][, segno])
+#### res.reply(payload[, code][, segno]): VppRpcResponse
 - `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
 - `code`: *{Number}*, optional VSOA status code, default 0.
 - `seqno`: *{Number}*, sequence number to respond, default to the one from `req`.
 
-#### res.createStream([timeout])
-- `timeout`: *{Number}*, optional timeout in milliseconds, use default VSOA value.
+#### res.pulish(payload[, url]): VppRpcResponse
+- `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
+- `url`: *{String}*, optional url to publish, default to the incoming RPC call url.
 
-#### res.datagram (payload[, url])
+#### res.datagram(payload[, url]): VppRpcResponse
 - `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
 - `url`: *{String}*, optional url to send the datagram, default to the incoming
   RPC call url.
 
+#### res.createStream([timeout])
+- `timeout`: *{Number}*, optional timeout in milliseconds, use default VSOA value.
 
 ### VppDgramHandler(req, res[, next])
 
@@ -195,7 +198,11 @@ Incoming raw *{VsoaPayload}* object, see [publish section](#vpppublish-payload-u
 #### dgramRes.server
 Raw VSOA Server object, which might be used for advanced usecases.
 
-#### dgramRes.datagram (payload[, url])
+#### dgramRes.pulish(payload[, url]): VppDgramResponse
+- `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
+- `url`: *{String}*, optional url to publish, default to the incoming datagram's url.
+
+#### dgramRes.datagram (payload[, url]): VppDgramResponse
 - `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
 - `url`: *{String}*, optional targeting url of this replying datagram, default to 
   the incoming datagram's url.
