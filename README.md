@@ -161,7 +161,7 @@ Raw VSOA Server object, which might be used for advanced usecases.
 - `code`: *{Number}*, optional VSOA status code, default 0.
 - `seqno`: *{Number}*, sequence number to respond, default to the one from `req`.
 
-#### res.pulish(payload[, url]): VppRpcResponse
+#### res.publish(payload[, url]): VppRpcResponse
 - `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
 - `url`: *{String}*, optional url to publish, default to the incoming RPC call url.
 
@@ -198,7 +198,7 @@ Incoming raw *{VsoaPayload}* object, see [publish section](#vpppublish-payload-u
 #### dgramRes.server
 Raw VSOA Server object, which might be used for advanced usecases.
 
-#### dgramRes.pulish(payload[, url]): VppDgramResponse
+#### dgramRes.publish(payload[, url]): VppDgramResponse
 - `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
 - `url`: *{String}*, optional url to publish, default to the incoming datagram's url.
 

@@ -29,7 +29,7 @@ export async function RpcForward (
       cli.reply(code, seqno, buildVsoaPayload(payload))
       return res
     },
-    pulish (payload: VppPayload, url = urlpath) {
+    publish (payload: VppPayload, url = urlpath) {
       server.publish(url, buildVsoaPayload(payload))
       return res
     },
@@ -66,7 +66,7 @@ export async function DgramForward (
   const req: VppDgramRequest = { url: urlpath, cli, payload }
   const res: VppDgramResponse = {
     server,
-    pulish (payload: VppPayload, url = urlpath) {
+    publish (payload: VppPayload, url = urlpath) {
       server.publish(url, buildVsoaPayload(payload))
       return res
     },
