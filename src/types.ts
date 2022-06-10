@@ -17,9 +17,10 @@ export interface VppRpcRequest {
 }
 export interface VppRpcResponse {
   server: Server,
-  reply (payload?: VppPayload, code?: number, seqno?: number): void
+  reply (payload?: VppPayload, code?: number, seqno?: number): VppRpcResponse
+  pulish (payload: VppPayload, url?: string): VppRpcResponse
+  datagram (payload: VppPayload, url?: string): VppRpcResponse
   createStream (timeout?: number): VsoaStream
-  datagram (payload: VppPayload, url?: string): void
 }
 
 export type VppRpcHandler = {(
@@ -38,7 +39,8 @@ export interface VppDgramRequest {
 }
 export interface VppDgramResponse {
   server: Server,
-  datagram (payload: VppPayload, url?: string): void
+  pulish (payload: VppPayload, url?: string): VppDgramResponse
+  datagram (payload: VppPayload, url?: string): VppDgramResponse
 }
 export type VppDgramHandler = (
   req: VppDgramRequest,
