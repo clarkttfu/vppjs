@@ -52,12 +52,6 @@ export type VppRequest = VppRpcRequest | VppDgramRequest
 export type VppResponse = VppRpcResponse | VppDgramResponse
 export type VppHandler = (req: any, res: any, next?: VppCallback) => Promise<any>|undefined
 
-export class VppError<U, V> extends Error {
-  constructor (public req: U, public res: V, public cause: any) {
-    super(cause instanceof Error ? cause.message : String(cause))
-  }
-}
-
 export class VppBreak extends Error {
   constructor () {
     super('Vppjs Router break')
