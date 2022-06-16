@@ -3,7 +3,7 @@ import { kRpcGet, kRpcSet } from './symbols'
 import {
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
   VppRpcHandler, VppRpcRequest, VppRpcResponse, VppPayload,
-  VppHandler, VppRequest, VppResponse, VppError, VppBreak
+  VppHandler, VppRequest, VppResponse, VppBreak
 } from './types'
 import { buildVsoaPayload, isPromise } from './utilities'
 
@@ -87,7 +87,7 @@ function callHandler (req: VppRequest, res: VppResponse, handler: VppHandler) {
       try {
         const promise = handler(req, res)
         if (isPromise(promise)) {
-          promise!.then(resolve, err => reject(new VppError(req, res, err)))
+          promise!.then(resolve, err => reject(err))
         } else {
           reject(routerBreak)
         }
@@ -98,12 +98,12 @@ function callHandler (req: VppRequest, res: VppResponse, handler: VppHandler) {
       try {
         handler(req, res, function (err: any) {
           if (err) {
-            return reject(new VppError(req, res, err))
+            return reject(err)
           }
           resolve()
         })
       } catch (err) {
-        reject(new VppError(req, res, err))
+        reject(err)
       }
     }
   })

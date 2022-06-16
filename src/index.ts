@@ -1,7 +1,7 @@
 import assert from 'assert'
 import { Server, AF_INET, AF_INET6, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
 import {
-  VppCallback, VppError,
+  VppCallback,
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
   VppRpcHandler, VppRpcRequest, VppRpcResponse, VppBreak
 } from './types'
@@ -10,7 +10,7 @@ import { VppRouter } from './router'
 import { isIPv4 } from './utilities'
 
 export { Server, RemoteClient, VsoaPayload }
-export { VppRouter, VppCallback, VppError }
+export { VppRouter, VppCallback }
 export { VppDgramHandler, VppDgramRequest, VppDgramResponse }
 export { VppRpcHandler, VppRpcRequest, VppRpcResponse }
 
@@ -109,7 +109,7 @@ function initializeRoutes (
   server.ondata = function (cli: RemoteClient, urlpath: string, payload: VsoaPayload) {
     if (dgramRoutes.has(urlpath)) {
       const promise = DgramForward(Array.from(dgramRoutes.get(urlpath)!), server, cli, urlpath, payload)
-      promise.catch((err: VppError<VppDgramRequest, VppDgramResponse>) => {
+      promise.catch((err: any) => {
         // default error handler
         if (!(err instanceof VppBreak)) {
           console.log(`Dgram handler error ${urlpath}`, err.cause)
@@ -121,11 +121,11 @@ function initializeRoutes (
   for (const [subPath, rpcHandlers] of rpcRoutes) {
     server.on(subPath, function (cli: RemoteClient, req: VsoaRpc, payload: VsoaPayload) {
       const promise = RpcForward(Array.from(rpcHandlers), server, cli, req, payload)
-      promise.catch((err: VppError<VppRpcRequest, VppRpcResponse>) => {
+      promise.catch((err: any) => {
         // default error handler
         if (!(err instanceof VppBreak)) {
-          console.log(`Rpc handler error ${req.url}`, err.cause)
-          err.res.reply(undefined, defaultErrorCode)
+          console.log(`Rpc handler error ${req.url}`, err)
+          cli.reply(defaultErrorCode, req.seqno, { param: err.message })
         }
       })
     })
