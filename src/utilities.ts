@@ -39,7 +39,7 @@ export function isPromise (p: any) {
 
 export function buildVsoaPayload (payload: VppPayload): VsoaPayload {
   if (typeof payload === 'object') {
-    if ('param' in (payload as VsoaPayload) || 'data' in payload) {
+    if ((payload as VsoaPayload).param || (payload as VsoaPayload).data) {
       return payload
     } else {
       return { param: payload }
