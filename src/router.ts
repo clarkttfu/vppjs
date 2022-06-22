@@ -1,5 +1,5 @@
-import path from 'path'
-import assert from 'assert'
+import path = require('path')
+import assert = require('assert')
 import { EventEmitter } from 'events'
 import { VsoaPayload } from 'vsoa'
 import { kDgramHandlers, kRpcHandlers, kBasePubCallbacks, kRpcGet, kRpcSet } from './symbols'

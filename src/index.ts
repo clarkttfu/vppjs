@@ -1,4 +1,4 @@
-import assert from 'assert'
+import assert = require('assert')
 import { Server, AF_INET, AF_INET6, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
 import {
   VppCallback,
@@ -92,7 +92,6 @@ export class Vpp extends VppRouter {
   }
 }
 
-export default vpp
 export function vpp (vppOpt?: VppOptions): Vpp {
   return new Vpp(vppOpt)
 }

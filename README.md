@@ -7,7 +7,7 @@ VSOA app framework like Express.js
 
 ``` JavaScript
 const vppjs = require('vppjs');
-const vpp = vppjs();
+const vpp = vppjs.vpp();
 
 const router = vpp.Router()
 const devices = {};
