@@ -1,7 +1,7 @@
 import assert = require('assert')
-import { Server, AF_INET, AF_INET6, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
+import { Server, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
 import {
-  VppCallback,
+  VppCallback, AF_INET, AF_INET6,
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
   VppRpcHandler, VppRpcRequest, VppRpcResponse, VppBreak
 } from './types'
