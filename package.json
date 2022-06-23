@@ -10,6 +10,8 @@
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "test": "tape -r ts-node/register test/**/*.test.ts | tap-spec",
+    "edgeros": "sed -i '' 's/\"name\": \"vppjs\"/\"name\": \"@edgeros\\/vppjs\"/g' package.json && npm publish",
+    "postedgeros": "git checkout package.json",
     "prepublish": "npm run lint && npm run test && npm run build"
   },
   "keywords": [
