@@ -1,6 +1,9 @@
 import { RemoteClient, VsoaPayload, method as VsoaRpcMethod, VsoaStream, Server } from 'vsoa'
 import { kRpcGet, kRpcSet } from './symbols'
 
+export const AF_INET = 2
+export const AF_INET6 = 10
+
 declare interface VppRouter {}
 
 export type VppPayload = string | Buffer | object
