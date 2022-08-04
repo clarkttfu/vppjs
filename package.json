@@ -1,6 +1,6 @@
 {
   "name": "vppjs",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "VSOA app framework like Express.js",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -10,9 +10,9 @@
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "test": "tape -r ts-node/register test/**/*.test.ts | tap-spec",
-    "edgeros": "sed -i '' 's/\"name\": \"vppjs\"/\"name\": \"@edgeros\\/vppjs\"/g' package.json && npm publish",
-    "postedgeros": "git checkout package.json",
-    "prepublish": "npm run lint && npm run test && npm run build"
+    "edgeros": "sed -i '' -e 's/\"name\": \"vppjs\"/\"name\": \"@edgeros\\/vppjs\"/g' -e '/\"dependencies\": {/,+2d' package.json",
+    "prepublish": "npm run lint && npm run test && npm run build",
+    "postpublish": "git checkout package.json"
   },
   "keywords": [
     "vsoa"
