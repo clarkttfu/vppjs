@@ -170,7 +170,8 @@ Raw VSOA Server object, which might be used for advanced usecases.
 - `url`: *{String}*, optional url to send the datagram, default to the incoming
   RPC call url.
 
-#### res.createStream([timeout])
+#### res.createStream([payload], [timeout]): VsoaStream
+- `payload`: *{VppPayload|undefined}*, see [VppPayload section](#vpppayload).
 - `timeout`: *{Number}*, optional timeout in milliseconds, use default VSOA value.
 
 ### VppDgramHandler(req, res[, next])

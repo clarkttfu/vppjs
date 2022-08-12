@@ -37,9 +37,13 @@ export async function RpcForward (
       cli.datagram(url, buildVsoaPayload(payload))
       return res
     },
-    createStream (timeout?: number) {
+    createStream (payload?: VppPayload, timeout?: number) {
       const stream = server.createStream(timeout)
-      cli.reply(0, rpc.seqno, stream.tunid)
+      if (payload == null) {
+        cli.reply(0, rpc.seqno, stream.tunid)
+      } else {
+        cli.reply(0, rpc.seqno, buildVsoaPayload(payload), stream.tunid)
+      }
       return stream
     }
   }

@@ -9,7 +9,7 @@ declare interface VppRouter {}
 export type VppPayload = string | Buffer | object
 export type VppCallback = (err?: Error, data?: any) => void
 
-export type VppPublish = (payload: VppPayload, subPath?: string) => VppRouter
+export type VppPublish = (payload?: VppPayload, subPath?: string) => VppRouter
 
 export interface VppRpcRequest {
   url: string,
@@ -23,7 +23,7 @@ export interface VppRpcResponse {
   reply (payload?: VppPayload, code?: number, seqno?: number): VppRpcResponse
   publish (payload: VppPayload, url?: string): VppRpcResponse
   datagram (payload: VppPayload, url?: string): VppRpcResponse
-  createStream (timeout?: number): VsoaStream
+  createStream (payload?: VppPayload, timeout?: number): VsoaStream
 }
 
 export type VppRpcHandler = {(

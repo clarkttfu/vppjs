@@ -37,22 +37,22 @@ export function isPromise (p: any) {
   }
 }
 
-export function buildVsoaPayload (payload: VppPayload): VsoaPayload {
-  if (typeof payload === 'object') {
-    if ((payload as VsoaPayload).param || (payload as VsoaPayload).data) {
+export function buildVsoaPayload (payload?: VppPayload): VsoaPayload | undefined {
+  const type = typeof payload
+  if (type === 'object') {
+    const rawPayload = payload as VsoaPayload
+    if (Buffer.isBuffer(rawPayload.data)) {
+      return payload
+    } else if (rawPayload.param) {
       return payload
     } else {
       return { param: payload }
     }
-  } else if (typeof payload === 'string') {
+  } else if (type === 'string' || type === 'number') {
     return { param: payload }
-  } else if (typeof payload === 'number') {
-    return { param: payload }
-  } else if (payload == null) {
-    return {}
   } else if (Buffer.isBuffer(payload)) {
     return { data: payload }
-  } else {
+  } else if (payload != null) {
     throw TypeError(`Invalid payload type ${typeof payload}`)
   }
 }
