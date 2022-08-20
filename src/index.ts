@@ -42,10 +42,10 @@ export class Vpp extends VppRouter {
    * @param {function} [callback] tcp server backlog
    * @returns {VsoaNativeServer}
    */
-  start (port: number, host?: string, backlog?: number, callback?: VppCallback) {
+  start (port: number, host: string|VppCallback, backlog?: number|VppCallback, callback?: VppCallback) {
     if (typeof host === 'function') {
       callback = host
-      host = undefined
+      host = '127.0.0.1'
       backlog = undefined
     } else if (typeof backlog === 'function') {
       assert(host && typeof host === 'string', 'Server host must be a string')

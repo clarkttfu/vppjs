@@ -3,7 +3,7 @@ import { kRpcGet, kRpcSet } from './symbols'
 import {
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
   VppRpcHandler, VppRpcRequest, VppRpcResponse, VppPayload,
-  VppHandler, VppRequest, VppResponse, VppBreak
+  VppHandler, VppBreak
 } from './types'
 import { buildVsoaPayload, isPromise } from './utilities'
 
@@ -85,7 +85,7 @@ export async function DgramForward (
   }
 }
 
-function callHandler (req: VppRequest, res: VppResponse, handler: VppHandler) {
+function callHandler<H extends VppHandler> (req: any, res: any, handler: H) {
   return new Promise<void>(function (resolve, reject) {
     if (handler.length < 3) {
       try {
