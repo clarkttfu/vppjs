@@ -9,7 +9,7 @@ declare interface VppRouter {}
 export type VppPayload = string | Buffer | object
 export type VppCallback = (err?: Error, data?: any) => void
 
-export type VppPublish = (payload?: VppPayload, subPath?: string) => VppRouter
+export type VppPublish = (payload?: VppPayload, quick?: boolean|string, subPath?: string) => VppRouter
 
 export interface VppRpcRequest {
   url: string,

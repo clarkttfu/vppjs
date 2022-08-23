@@ -86,8 +86,12 @@ export class Vpp extends VppRouter {
     return this
   }
 
-  publish (payload: VsoaPayload, urlpath = '/') {
-    this.server.publish(urlpath, payload)
+  publish (payload: VsoaPayload, quick: boolean|string = false, urlpath = '/') {
+    if (typeof quick === 'string') {
+      urlpath = quick
+      quick = false
+    }
+    this.server.publish(urlpath, payload, quick)
     return this
   }
 }
