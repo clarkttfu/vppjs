@@ -29,7 +29,7 @@ export async function RpcForward (
       cli.reply(code, seqno, buildVsoaPayload(payload))
       return res
     },
-    publish (payload: VppPayload, url = urlpath) {
+    publish (payload?: VppPayload, url = urlpath) {
       server.publish(url, buildVsoaPayload(payload))
       return res
     },

@@ -42,12 +42,12 @@ Create a new instance of [VppRouter class](#vpprouter-class).
 
 ### Vpp class
 
-#### Vpp Event 'connect' and 'disconnect'
+#### Event 'connect' and 'disconnect'
 
 These events are emitted when client is connected or disconnected:
 
-- cli: RemoteClient, the [VSOA remote client](https://www.edgeros.com/edgeros/api/VSOA%20EXTENSION/vsoa.html#VSOA%20Remote%20Client%20Object) object
-- server: VsoaServer, the [VSOA Server](https://www.edgeros.com/edgeros/api/VSOA%20EXTENSION/vsoa.html#VSOA%20Server%20Object) object
+- cli: [VSOA remote client](https://www.edgeros.com/edgeros/api/VSOA%20EXTENSION/vsoa.html#VSOA%20Remote%20Client%20Object) object
+- server: [VSOA Server](https://www.edgeros.com/edgeros/api/VSOA%20EXTENSION/vsoa.html#VSOA%20Server%20Object) object
 
 ```
 vpp.on('connect', (cli, server) => {
@@ -72,9 +72,9 @@ vpp.on('connect', (cli, server) => {
 #### vpp.stop ([callback])
 - `callback`: *{Function}*, callback function when the server is stopped
 
-#### vpp.publish (payload[, urlpath])
+#### vpp.publish ([payload][, urlpath])
 
-- `payload`: *{VsoaPayload}*, the raw VSOA request payload object
+- `payload`: *{VsoaPayload}*, the raw VSOA request payload object or `undefined`
   - `param`: *{String|Object}*, payload param data
   - `data`: *{Buffer}*, optional payload data
   - `offset`: *{Number}*, optional offset of payload data inside the given buffer
@@ -107,8 +107,8 @@ arbitrary `(req, res, nex) => {}` middleware function, but router intances only!
 - `dgramHandlers`: *{DgramHandler}*, handlers that will be called once there are **DGRAM**
   messages sent to the joined URL.
 
-#### router.publish(payload[, subPath]): VppRouter
-- `payload`: [VppPayload](#vpppayload)
+#### router.publish([payload][, subPath]): VppRouter
+- `payload`: [VppPayload](#vpppayload) or `undefined`
 - `subPath`: *{String}*, optional url path of publishement, defaults '/'.
 
 ### VppPayload
@@ -161,8 +161,8 @@ Raw VSOA Server object, which might be used for advanced usecases.
 - `code`: *{Number}*, optional VSOA status code, default 0.
 - `seqno`: *{Number}*, sequence number to respond, default to the one from `req`.
 
-#### res.publish(payload[, url]): VppRpcResponse
-- `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
+#### res.publish([payload][, url]): VppRpcResponse
+- `payload`: *{VppPayload}* or `undefined`, see [VppPayload section](#vpppayload).
 - `url`: *{String}*, optional url to publish, default to the incoming RPC call url.
 
 #### res.datagram(payload[, url]): VppRpcResponse
