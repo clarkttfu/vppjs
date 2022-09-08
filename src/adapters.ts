@@ -65,17 +65,21 @@ export async function RpcForward (
 export async function DgramForward (
   dgramHandlers: VppDgramHandler[],
   server: Server, cli: RemoteClient,
-  urlpath: string, payload: VsoaPayload) {
+  urlpath: string, payload: VsoaPayload, quick: boolean) {
 //
-  const req: VppDgramRequest = { url: urlpath, cli, payload }
+  const req: VppDgramRequest = { url: urlpath, cli, payload, quick }
   const res: VppDgramResponse = {
     server,
     publish (payload: VppPayload, url = urlpath) {
       server.publish(url, buildVsoaPayload(payload))
       return res
     },
-    datagram (payload: VppPayload, url = urlpath) {
-      cli.datagram(url, buildVsoaPayload(payload))
+    datagram (payload: VppPayload, quick = false, url = urlpath) {
+      if (typeof quick === 'string') {
+        url = quick
+        quick = false
+      }
+      cli.datagram(url, buildVsoaPayload(payload), quick)
       return res
     }
   }

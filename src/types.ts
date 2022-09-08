@@ -6,10 +6,10 @@ export const AF_INET6 = 10
 
 declare interface VppRouter {}
 
-export type VppPayload = string | Buffer | object
+export type VppPayload = string | object | number | Buffer
 export type VppCallback = (err?: Error, data?: any) => void
 
-export type VppPublish = (payload?: VppPayload, quick?: boolean|string, subPath?: string) => VppRouter
+export type VppPublish = (payload?: VsoaPayload, quick?: boolean|string, subPath?: string) => VppRouter
 
 export interface VppRpcRequest {
   url: string,
@@ -38,12 +38,13 @@ export type VppRpcHandler = {(
 export interface VppDgramRequest {
   url: string,
   cli: RemoteClient,
-  payload: VsoaPayload
+  payload: VsoaPayload,
+  quick: boolean
 }
 export interface VppDgramResponse {
   server: Server,
   publish (payload: VppPayload, url?: string): VppDgramResponse
-  datagram (payload: VppPayload, url?: string): VppDgramResponse
+  datagram (payload: VppPayload, quick?: boolean|string, url?: string): VppDgramResponse
 }
 export type VppDgramHandler = (
   req: VppDgramRequest,

@@ -72,15 +72,17 @@ vpp.on('connect', (cli, server) => {
 #### vpp.stop ([callback])
 - `callback`: *{Function}*, callback function when the server is stopped
 
-#### vpp.publish ([payload][, urlpath])
-
+#### vpp.publish ([payload][, quick][, urlpath])
 - `payload`: *{VsoaPayload}*, the raw VSOA request payload object or `undefined`
   - `param`: *{String|Object}*, payload param data
   - `data`: *{Buffer}*, optional payload data
   - `offset`: *{Number}*, optional offset of payload data inside the given buffer
   - `length`: *{Number}*, optional length of actual payload data inside the buffer
-- `urlpath`: *{String}*, optional url path of publishement, defaults '/'.
+- `quick`: *{Boolean}*, optional flag to incide *normal* or *quick* VSOA data channel
+- `urlpath`: *{String}*, optional url path of publishement, defaults '/'
 
+#### vpp.isSubscribed (url)
+- `url`: *{String}*, url to be checked if has been subscribed by a client
 
 ### VppRouter class
 
@@ -107,19 +109,25 @@ arbitrary `(req, res, nex) => {}` middleware function, but router intances only!
 - `dgramHandlers`: *{DgramHandler}*, handlers that will be called once there are **DGRAM**
   messages sent to the joined URL.
 
-#### router.publish([payload][, subPath]): VppRouter
+#### router.publish([payload][, quick][, subPath]): VppRouter
 - `payload`: [VppPayload](#vpppayload) or `undefined`
+- `quick`: *{Boolean}*, optional flag to incide *normal* or *quick* VSOA data channel
 - `subPath`: *{String}*, optional url path of publishement, defaults '/'.
 
 ### VppPayload
 
 When working with VppRouter object, APIs that accecpt VppPayload can help
 automatically convert it into the **raw** VsoaPayload:
-- if vppPayload is a Buffer, it will be mapped to VsoaPayload.data (you cannot
-  pass `offset` and `length` in this form)
-- if vppPayload is a String or Number, it will be mapped to VsoaPayload.param
-- if vppPayload is an Object and has 'param' or 'data' property, it wll be 
-  sent directly as RAW VsoaPayload.
+
+1. If input is an object and
+   - a. it contains 'param' field then raw VSOA payload is assumed;
+   - b. it contains 'data' field of Buffer then raw VSOA payload  is assumed;
+   - c. OTHERWISE plain object is assumed, send it as 'param'.
+ 2. if input is string, send it as 'param'.
+ 3. if input is Buffer, send it as 'data'.
+ 4. if input is number, convert it to string then send it as 'param'. This is 
+    because VSOA **IGNORES** number in `payload.param`.
+ 5. OTHERWISE, returns undefined.
 
 ### VppRpcHandler(req, res[, next])
 
@@ -191,8 +199,10 @@ A string of the targeting url of this incoming datagram.
 VSOA RemoteClient object, which could be used to call original VSOA client API.
 
 #### dgramReq.payload
-
 Incoming raw *{VsoaPayload}* object, see [publish section](#vpppublish-payload-urlpath)
+
+#### dgramReq.quick
+Boolean flag indicating if this datagram was sent via the quick data channel.
 
 ### VppDgramResponse
 
@@ -203,8 +213,9 @@ Raw VSOA Server object, which might be used for advanced usecases.
 - `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
 - `url`: *{String}*, optional url to publish, default to the incoming datagram's url.
 
-#### dgramRes.datagram (payload[, url]): VppDgramResponse
+#### dgramRes.datagram (payload[, quick][, url]): VppDgramResponse
 - `payload`: *{VppPayload}*, see [VppPayload section](#vpppayload).
+- `quick`: *{Boolean}*, optional flag to incide *normal* or *quick* VSOA data channel
 - `url`: *{String}*, optional targeting url of this replying datagram, default to 
   the incoming datagram's url.
 

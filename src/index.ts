@@ -1,5 +1,5 @@
 import assert = require('assert')
-import { Server, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
+import { Server, ServerInfo, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
 import {
   VppCallback, AF_INET, AF_INET6,
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
@@ -15,7 +15,7 @@ export { VppDgramHandler, VppDgramRequest, VppDgramResponse }
 export { VppRpcHandler, VppRpcRequest, VppRpcResponse }
 
 export interface VppOptions {
-  info?: string,
+  info?: ServerInfo,
   passwd?: string,
   tlsOpt?: object
   captureRejections?: boolean
@@ -28,7 +28,7 @@ export class Vpp extends VppRouter {
   private defaultErrorCode: number
 
   constructor (options?: VppOptions) {
-    const opt: VppOptions = Object.assign({ info: 'Vpp.js' }, options)
+    const opt: VppOptions = Object.assign({ info: { name: 'Vpp.js' } }, options)
     super(opt.captureRejections)
     this.server = new Server({ info: opt.info!, passwd: opt.passwd })
     this.serverTlsOpt = opt.tlsOpt
@@ -94,6 +94,10 @@ export class Vpp extends VppRouter {
     this.server.publish(urlpath, payload, quick)
     return this
   }
+
+  isSubscribed (url: string): boolean {
+    return this.server.isSubscribed(url)
+  }
 }
 
 export function vpp (vppOpt?: VppOptions): Vpp {
@@ -109,9 +113,9 @@ function initializeRoutes (
   dgramRoutes: Map<string, Set<VppDgramHandler>>,
   rpcRoutes: Map<string, Set<VppRpcHandler>>,
   defaultErrorCode: number) {
-  server.ondata = function (cli: RemoteClient, urlpath: string, payload: VsoaPayload) {
+  server.ondata = function (cli: RemoteClient, urlpath: string, payload: VsoaPayload, quick: boolean) {
     if (dgramRoutes.has(urlpath)) {
-      const promise = DgramForward(Array.from(dgramRoutes.get(urlpath)!), server, cli, urlpath, payload)
+      const promise = DgramForward(Array.from(dgramRoutes.get(urlpath)!), server, cli, urlpath, payload, quick)
       promise.catch((err: any) => {
         // default error handler
         if (!(err instanceof VppBreak)) {

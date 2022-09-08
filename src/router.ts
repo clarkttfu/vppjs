@@ -76,8 +76,7 @@ export class VppRouter extends EventEmitter {
   }
 
   /**
-   * @param {VsoaPayload} payload
-   * @param {string} [subPath]
+   * Publish a message on current router mounting path or sub path
    */
   publish (payload?: VppPayload, quick: boolean|string = false, subPath?: string): VppRouter {
     if (typeof quick === 'string') {
