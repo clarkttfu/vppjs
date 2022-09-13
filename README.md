@@ -116,7 +116,7 @@ arbitrary `(req, res, nex) => {}` middleware function, but router intances only!
 
 ### VppPayload
 
-When working with VppRouter object, APIs that accecpt VppPayload can help
+When working with VppRouter object, APIs that accept VppPayload can help
 automatically convert it into the **raw** VsoaPayload:
 
 1. If input is an object and
