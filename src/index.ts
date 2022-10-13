@@ -73,6 +73,7 @@ export class Vpp extends VppRouter {
       if (connect) {
         self.emit('connect', cli, server)
       } else {
+        cli.emit('disconnect', cli, server)
         self.emit('disconnect', cli, server)
       }
     }

@@ -55,6 +55,8 @@ vpp.on('connect', (cli, server) => {
 })
 ```
 
+In addition to standard VSOA Remote Client events, the cli object of vppjs will also emit 'disconnect' event on disconnection.
+
 #### vpp.contructor(options)
 - `options`: *{VppOptions}*
   - `info`: *{String|Object}*, for VSOA server info, default 'Vpp.js'
