@@ -9,7 +9,7 @@ VSOA app framework like Express.js
 const vppjs = require('vppjs');
 const vpp = vppjs.vpp();
 
-const router = vpp.Router()
+const router = vppjs.router()
 const devices = {};
 
 router.dgram('/ping', (req, res) => {
