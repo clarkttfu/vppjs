@@ -57,13 +57,18 @@ vpp.on('connect', (cli, server) => {
 
 In addition to standard VSOA Remote Client events, the cli object of vppjs will also emit 'disconnect' event on disconnection.
 
-#### vpp.contructor(options)
+#### Vpp contructor(options)
 - `options`: *{VppOptions}*
-  - `info`: *{String|Object}*, for VSOA server info, default 'Vpp.js'
+  - `info`: *{Object}*, for VSOA server info, default `{ name: 'Vpp.js' }`
   - `passwd`: *{String}*, for VSOA server authentication
   - `tlsOpt`: *{Object}*, Node.js TLS options object, for VSOA TLS server setup
   - `defaultErrorCode`: *{Number}*, range from 128 to 255, default 199. This is used
     by the default error handler to send reply for unhandled server error.
+
+```
+const { Vpp } = require('vppjs')
+const vpp = new Vpp()
+```
 
 #### vpp.start(port[, host][, backlog][, callback])
 - `port`: *{Number}*, port number the VSOA server to listen
