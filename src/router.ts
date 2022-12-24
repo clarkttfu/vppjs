@@ -58,17 +58,17 @@ export class VppRouter extends EventEmitter {
 
     for (const router of routers) {
       router[kBasePubCallbacks].add(function (payload?: VsoaPayload, quick: boolean|string = false, subPath?: string) {
-        const joinedPath = path.join(usePath, subPath || '')
+        const joinedPath = path.posix.join(usePath, subPath || '')
         return self.publish(payload, quick, joinedPath)
       })
 
       for (const [subPath, dgramHandlers] of router[kDgramHandlers]) {
-        const joinedPath = path.join(usePath, subPath)
+        const joinedPath = path.posix.join(usePath, subPath)
         addHandlers(joinedPath, Array.from(dgramHandlers), self.dgramHandlers)
       }
 
       for (const [subPath, rpcHandlers] of router[kRpcHandlers]) {
-        const joinedPath = path.join(usePath, subPath)
+        const joinedPath = path.posix.join(usePath, subPath)
         addHandlers(joinedPath, Array.from(rpcHandlers), self.rpcHandlers)
       }
     }

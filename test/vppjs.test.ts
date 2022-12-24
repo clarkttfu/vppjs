@@ -12,5 +12,10 @@ test('vppjs.vpp', t => {
 test('vppjs.router', t => {
   const r = vppjs.router()
   t.ok(r instanceof VppRouter, 'vpp.router() should return a router')
+  r.get('/', () => {})
+  r.set('/', () => {})
+  r.dgram('/', () => {})
+
+  vppjs.vpp().use('/foo', r)
   t.end()
 })

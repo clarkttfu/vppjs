@@ -1,6 +1,6 @@
 {
   "name": "vppjs",
-  "version": "0.4.4",
+  "version": "0.4.6",
   "description": "VSOA app framework like Express.js",
   "main": "src/index.js",
   "types": "src/index.d.ts",
