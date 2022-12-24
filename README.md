@@ -13,7 +13,7 @@ const router = vppjs.router();
 const devices = {};
 
 router.dgram('/ping', (req, res) => {
-  return res.datagram({ param: 'pong'});
+  return res.datagram('pong');
 });
 
 router.get('/file/', (req, res) => {
@@ -134,7 +134,7 @@ automatically convert it into the **raw** VsoaPayload:
  3. if input is Buffer, send it as 'data'.
  4. if input is number, convert it to string then send it as 'param'. This is 
     because VSOA **IGNORES** number in `payload.param`.
- 5. OTHERWISE, returns undefined.
+ 5. otherwise, input will be **IGNORED**.
 
 ### VppRpcHandler(req, res[, next])
 
