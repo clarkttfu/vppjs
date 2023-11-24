@@ -1,7 +1,7 @@
 import assert = require('assert')
 import { Server, ServerInfo, VsoaPayload, VsoaRpc, RemoteClient } from 'vsoa'
 import {
-  VppCallback, AF_INET, AF_INET6,
+  AF_INET, AF_INET6, VppCallback, VppPayload,
   VppDgramHandler, VppDgramRequest, VppDgramResponse,
   VppRpcHandler, VppRpcRequest, VppRpcResponse, VppBreak
 } from './types'
@@ -10,7 +10,7 @@ import { VppRouter } from './router'
 import { isIPv4 } from './utilities'
 
 export { Server, RemoteClient, VsoaPayload }
-export { VppRouter, VppCallback }
+export { VppPayload, VppCallback, VppRouter }
 export { VppDgramHandler, VppDgramRequest, VppDgramResponse }
 export { VppRpcHandler, VppRpcRequest, VppRpcResponse }
 

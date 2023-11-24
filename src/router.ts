@@ -106,7 +106,8 @@ function assertArguments<T> (path: string, handlers: T[]) {
 function addHandlers<T> (
   subPath: string,
   handlers: T[],
-  targetContainer: Map<string, Set<T>>) {
+  targetContainer: Map<string, Set<T>>
+) {
   if (targetContainer.has(subPath)) {
     const origin = targetContainer.get(subPath)!
     for (const handler of handlers) {

@@ -229,6 +229,7 @@ Raw VSOA Server object, which might be used for advanced usecases.
 
 TODO
 - [ ] more unit tests
+- [ ] vpp middleware can intercept all sub route requests
 - [ ] accept error handlers
 - [ ] simple request logging middleware
 - [ ] scaffolding scripts
