@@ -6,7 +6,7 @@ export const AF_INET6 = 10
 
 declare interface VppRouter {}
 
-export type VppPayload = string | object | number | Buffer
+export type VppPayload = string | number | null | Buffer | { [key: string]: any }
 export type VppCallback = (err?: Error, data?: any) => void
 
 export type VppPublish = (payload?: VsoaPayload, quick?: boolean|string, subPath?: string) => VppRouter

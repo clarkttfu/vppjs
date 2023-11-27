@@ -50,22 +50,24 @@ export function isPromise (p: any) {
  * 5. OTHERWISE, returns undefined
  */
 export function buildVsoaPayload (payload?: VppPayload): VsoaPayload | undefined {
-  if (typeof payload === 'object') {
-    const rawPayload = payload as VsoaPayload
-    if (Buffer.isBuffer(rawPayload.data)) {
-      return rawPayload
-    } else if (rawPayload.param) {
-      return rawPayload
-    } else {
-      return { param: rawPayload }
-    }
-  } else if (Buffer.isBuffer(payload)) {
-    return { data: payload }
-  } else if (typeof payload === 'string') {
-    return { param: payload }
-  } else if (typeof payload === 'number') {
-    return { param: String(payload) }
-  } else if (payload != null) {
-    throw TypeError(`Invalid payload type ${typeof payload}`)
+  switch (typeof payload) {
+    case 'object':
+      if (Buffer.isBuffer(payload)) {
+        return { data: payload }
+      } else if (payload == null) {
+        return undefined
+      } else if (payload.param || Buffer.isBuffer(payload.data)) {
+        return payload
+      } else {
+        return { param: payload }
+      }
+    case 'string':
+      return { param: payload }
+    case 'number':
+      return { param: String(payload) }
+    case 'undefined':
+      return undefined
+    default:
+      throw TypeError(`Invalid payload type ${typeof payload}`)
   }
 }
