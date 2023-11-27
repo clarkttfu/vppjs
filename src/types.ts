@@ -23,7 +23,7 @@ export interface VppRpcResponse {
   reply (payload?: VppPayload, code?: number, seqno?: number): VppRpcResponse
   publish (payload: VppPayload, url?: string): VppRpcResponse
   datagram (payload: VppPayload, url?: string): VppRpcResponse
-  createStream (payload?: VppPayload, timeout?: number): VsoaStream
+  createStream (payload?: VppPayload, timeout?: number, code?: number, seqno?: number): VsoaStream
 }
 
 export type VppRpcHandler = {(
