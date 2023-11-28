@@ -1,4 +1,5 @@
 import assert = require('assert')
+import path = require('path')
 import { VsoaPayload } from 'vsoa'
 import { VppPayload } from './types'
 
@@ -35,6 +36,10 @@ export function isPromise (p: any) {
   if (p && typeof p.then === 'function') {
     return true
   }
+}
+
+export function pathJoin (...paths: string[]): string {
+  return (path.posix?.join || path.join).apply(null, paths)
 }
 
 /**

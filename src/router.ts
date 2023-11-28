@@ -1,10 +1,9 @@
-import path = require('path')
 import assert = require('assert')
 import { EventEmitter } from 'events'
 import { VsoaPayload } from 'vsoa'
 import { kDgramHandlers, kRpcHandlers, kBasePubCallbacks, kRpcGet, kRpcSet } from './symbols'
 import { VppPublish, VppDgramHandler, VppRpcHandler, VppPayload } from './types'
-import { buildVsoaPayload, isUrlPath } from './utilities'
+import { buildVsoaPayload, isUrlPath, pathJoin } from './utilities'
 
 /**
 * Router class collect business handlers' setup; and Vpp link routers to the
@@ -58,17 +57,17 @@ export class VppRouter extends EventEmitter {
 
     for (const router of routers) {
       router[kBasePubCallbacks].add(function (payload?: VsoaPayload, quick: boolean|string = false, subPath?: string) {
-        const joinedPath = path.posix.join(usePath, subPath || '')
+        const joinedPath = pathJoin(usePath, subPath || '')
         return self.publish(payload, quick, joinedPath)
       })
 
       for (const [subPath, dgramHandlers] of router[kDgramHandlers]) {
-        const joinedPath = path.posix.join(usePath, subPath)
+        const joinedPath = pathJoin(usePath, subPath)
         addHandlers(joinedPath, Array.from(dgramHandlers), self.dgramHandlers)
       }
 
       for (const [subPath, rpcHandlers] of router[kRpcHandlers]) {
-        const joinedPath = path.posix.join(usePath, subPath)
+        const joinedPath = pathJoin(usePath, subPath)
         addHandlers(joinedPath, Array.from(rpcHandlers), self.rpcHandlers)
       }
     }
