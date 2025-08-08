@@ -93,7 +93,7 @@ const vpp = new Vpp()
 
 ### VppRouter class
 
-**Note:** unlike Expres.js, the Vpp or VppRouter instance for now, cannot use
+**Note:** unlike Express.js, the Vpp or VppRouter instance for now, cannot use
 arbitrary `(req, res, nex) => {}` middleware function, but router intances only!
 
 #### router.use(subPath, ...routers): VppRouter
@@ -118,7 +118,7 @@ arbitrary `(req, res, nex) => {}` middleware function, but router intances only!
 
 #### router.publish([payload][, quick][, subPath]): VppRouter
 - `payload`: [VppPayload](#vpppayload) or `undefined`
-- `quick`: *{Boolean}*, optional flag to incide *normal* or *quick* VSOA data channel
+- `quick`: *{Boolean}*, optional flag to indicate *normal* or *quick* VSOA data channel
 - `subPath`: *{String}*, optional url path of publishement, defaults '/'.
 
 ### VppPayload
